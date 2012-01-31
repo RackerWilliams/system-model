@@ -11,6 +11,11 @@
     <xsl:template match="sys:system">
 digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
            node [fontname="Helvetica", shape=rect, style=filled,fillcolor="#EEEEEE"]
+           {
+             rank=source
+             S0
+           }
+           S0[style="invis"]
            <xsl:apply-templates />
            <xsl:apply-templates mode="connections"/>
            <xsl:apply-templates mode="labels"/>
@@ -56,6 +61,14 @@ digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
                 <xsl:with-param name="next" select="following-sibling::sys:*"/>
             </xsl:call-template>
         </xsl:if>
+    </xsl:template>
+
+    <xsl:template match="sys:node[@start = 'true']" mode="connections">
+        <xsl:call-template name="add-connections">
+            <xsl:with-param name="sourceID" select="'S0'"/>
+            <xsl:with-param name="next" select="sys:*[1]"/>
+        </xsl:call-template>
+        <xsl:apply-templates mode="connections"/>
     </xsl:template>
 
     <xsl:template name="add-connections">

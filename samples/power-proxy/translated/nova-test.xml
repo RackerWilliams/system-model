@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<power-proxy xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
+  <service-domain name="repose-nova" cluster="id35818887" port="8080" filter-chain="id35818814">
+    <forward destination="id35818834"/>
+  </service-domain>
+  <service-domain name="id35818834" cluster="local" port="9001" filter-chain="id35818838">
+    <forward destination="id35818846"/>
+  </service-domain>
+  <service-domain name="id35818846" cluster="local" port="9002" filter-chain="id35818850">
+    <forward destination="id35818858"/>
+  </service-domain>
+  <service-domain name="id35818858" cluster="local" port="9000" filter-chain="id35818862">
+    <forward destination="nova1"/>
+    <forward destination="nova2"/>
+  </service-domain>
+  <service-domain name="nova1" cluster="local" port="8081"/>
+  <service-domain name="nova2" cluster="local" port="8082"/>
+  <filter-chain name="id35818814">
+    <filter name="client-authentication"/>
+    <filter name="client-authorization"/>
+    <filter name="dist-datastore"/>
+    <filter name="rate-limiting"/>
+  </filter-chain>
+  <filter-chain name="id35818838">
+    <filter name="test-filter"/>
+  </filter-chain>
+  <filter-chain name="id35818850">
+    <filter name="another-filter"/>
+  </filter-chain>
+  <filter-chain name="id35818862">
+    <filter name="service-versioning"/>
+  </filter-chain>
+  <cluster name="id35818887">
+    <node alias="nova-n01" host="nova-n01.ord.internal.rackspace.corp"/>
+    <node alias="nova-n02" host="nova-n02.ord.internal.rackspace.corp"/>
+  </cluster>
+  <cluster name="local">
+    <node host="localhost"/>
+  </cluster>
+</power-proxy>

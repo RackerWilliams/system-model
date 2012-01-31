@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<power-proxy xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
+  <service-domain name="repose" cluster="id35818850" port="8080" filter-chain="id35818814">
+    <forward destination="nova"/>
+  </service-domain>
+  <service-domain name="nova" cluster="id35818850" port="8081"/>
+  <filter-chain name="id35818814">
+    <filter name="client-authentication"/>
+    <filter name="client-authorization"/>
+    <filter name="dist-datastore"/>
+    <filter name="rate-limiting"/>
+  </filter-chain>
+  <cluster name="id35818850">
+    <node alias="nova-n01" host="nova-n01.ord.internal.rackspace.corp"/>
+    <node alias="nova-n02" host="nova-n02.ord.internal.rackspace.corp"/>
+  </cluster>
+</power-proxy>

@@ -57,5 +57,19 @@ digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
     <xsl:template match="sys:filter" mode="labels">
         &lt;TR&gt;&lt;TD&gt;<xsl:value-of select="@name"/>&lt;/TD&gt;&lt;/TR&gt;&#x0a;
     </xsl:template>
+    <xsl:template match="sys:service" mode="labels">
+        <xsl:if test="not(name(..) = 'choice')">
+            <xsl:value-of select="generate-id()"/> [label="<xsl:choose>
+            <xsl:when test="@id"><xsl:value-of select="@id"/></xsl:when>
+            <xsl:otherwise><xsl:value-of select="generate-id()"/></xsl:otherwise>
+            </xsl:choose><xsl:if test="@port">
+            <xsl:value-of select="concat(' ',@port)"/>
+            </xsl:if>
+            <xsl:if test="@path">
+            <xsl:value-of select="concat(' ',@path)"/>
+            </xsl:if>"; fillcolor=wheat;
+            ]
+        </xsl:if>
+    </xsl:template>
     <xsl:template match="text()" mode="labels"/>
 </xsl:transform>

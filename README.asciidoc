@@ -1,0 +1,39 @@
+System Model Proposal
+=====================
+
+== Repo Contents
+
+Sample models are in:
+
+---
+samples/*.xml
+---
+
+PDFs are available so you can get an idea of how the connections
+work.  The origional samples supplied in the previous proposal are in
+
+---
+samples/power-proxy/orig/*.xml
+---
+
+For comparisons the sample models are traslated to the previous format
+in
+
+---
+samples/power-proxy/translated/*.xml
+---
+
+You can transalte a modle to the previous format with the supplied XSL
+
+---
+xsltproc xsl/sys2pp.xsl samples/complex.xml > out.xml
+---
+
+You can produce dot files to visualize what's going on wih a different
+XSL (the graphs are a little rough, though)
+
+---
+xsltproc xsl/sys2dot.xsl samples/complex.xml > out.dot
+---
+
+You can use graphviz to see the file.

@@ -10,7 +10,7 @@ simply a declaritive document that states a repose deployment.
 
 Thus
 
-[source,xml]
+[xml]
 ----
 <system xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
    ....
@@ -19,7 +19,7 @@ Thus
 
 Instead of
 
-[source,xml]
+[xml]
 ----
 <power-proxy xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
    ....

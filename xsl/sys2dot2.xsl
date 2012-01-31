@@ -53,30 +53,48 @@ digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
         <xsl:if test="following-sibling::sys:*">
             <xsl:call-template name="add-connections">
                 <xsl:with-param name="sourceID" select="generate-id(sys:filters)"/>
+                <xsl:with-param name="next" select="following-sibling::sys:*"/>
             </xsl:call-template>
         </xsl:if>
     </xsl:template>
 
     <xsl:template name="add-connections">
         <xsl:param name="sourceID"/>
+        <xsl:param name="next"/>
         <xsl:choose>
-            <xsl:when test="following-sibling::sys:node[@href]">
+            <xsl:when test="(name($next) = 'node') and $next/@href">
                 <xsl:value-of select="concat(generate-id(),'&#x0a;')"/>
             </xsl:when>
-            <xsl:when test="following-sibling::sys:service">
+            <xsl:when test="name($next) = 'service'">
+                <xsl:choose>
+                    <xsl:when test="name($next/..) = 'choice'">
+                        <xsl:call-template name="print-connection">
+                            <xsl:with-param name="sourceID" select="$sourceID"/>
+                            <xsl:with-param name="destID" select="concat('&quot;',generate-id($next/..),
+                                                                  '&quot;:',generate-id($next))"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="print-connection">
+                            <xsl:with-param name="sourceID" select="$sourceID"/>
+                            <xsl:with-param name="destID" select="generate-id($next)"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
+            <xsl:when test="name($next) = 'repose'">
                 <xsl:call-template name="print-connection">
                     <xsl:with-param name="sourceID" select="$sourceID"/>
-                    <xsl:with-param name="destID" select="generate-id(following-sibling::sys:service)"/>
+                    <xsl:with-param name="destID" select="generate-id($next/sys:filters)"/>
                 </xsl:call-template>
             </xsl:when>
-            <xsl:when test="following-sibling::sys:repose">
-                <xsl:call-template name="print-connection">
-                    <xsl:with-param name="sourceID" select="$sourceID"/>
-                    <xsl:with-param name="destID" select="generate-id(following-sibling::sys:repose/sys:filters)"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="following-sibling::sys:choice">
-                <xsl:value-of select="concat(generate-id(),'&#x0a;')"/>
+            <xsl:when test="name($next) = 'choice'">
+                <xsl:for-each select="$next/sys:*">
+                    <xsl:call-template name="add-connections">
+                        <xsl:with-param name="sourceID" select="$sourceID"/>
+                        <xsl:with-param name="next" select="."/>
+                    </xsl:call-template>
+                </xsl:for-each>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:value-of select="concat(generate-id(),'&#x0a;')"/>

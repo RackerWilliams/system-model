@@ -7,59 +7,167 @@
                version="1.0">
     <xsl:output method="text"/>
     <xsl:variable name="indent" select='"             "'/>
+
     <xsl:template match="sys:system">
 digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
            node [fontname="Helvetica", shape=rect, style=filled,fillcolor="#EEEEEE"]
-<xsl:apply-templates mode="subgraph"/>
            {
              rank=source
              S0
            }
            S0[style="invis"]
-<xsl:apply-templates mode="label"/>
+           <xsl:apply-templates />
+           <xsl:apply-templates mode="connections"/>
+           <xsl:apply-templates mode="labels"/>
 }
     </xsl:template>
-    <xsl:template match="sys:node" mode="subgraph">
-        subgraph <xsl:value-of select="concat($indent,'&quot;',@id,'&quot;')"/> {
-        style=filled;
-        color=blue;
-        label="<xsl:value-of select="@id"/>"
-        <xsl:apply-templates mode="edge">
-            <xsl:with-param name="id" select="@id"/>
-        </xsl:apply-templates>
+
+    <!-- Setup Structure -->
+    <xsl:template match="sys:node">
+        subgraph cluster_<xsl:value-of select="generate-id()"/> {
+           label="<xsl:choose>
+             <xsl:when test="@id"><xsl:value-of select="@id"/></xsl:when>
+             <xsl:otherwise><xsl:value-of select="generate-id()"/></xsl:otherwise>
+           </xsl:choose>";
+           labelloc=t;
+           style=filled;
+           color=grey;
+           <xsl:apply-templates />
         }
     </xsl:template>
-    <xsl:template match="sys:node" mode="node">
-        <xsl:value-of select="concat($indent,'&quot;',@id,'&quot;&#x0a;')"/>
+    <xsl:template match="sys:repose">
+        subgraph cluster_<xsl:value-of select="generate-id()"/> {
+           label="Repose <xsl:value-of select="@port"/>"
+           color=red
+           <xsl:apply-templates />
+        }
     </xsl:template>
-    <xsl:template match="sys:node" mode="edge">
-        <xsl:apply-templates mode="edge">
-            <xsl:with-param name="id" select="@id"/>
-        </xsl:apply-templates>
-        <xsl:if test="@start='true'">
-             S0-><xsl:value-of select="concat('&quot;',@id,'&quot;&#x0a;')"/>
+    <xsl:template match="sys:filters | sys:service">
+        <xsl:value-of select="concat(generate-id(),'&#x0a;')"/>
+    </xsl:template>
+    <xsl:template match="sys:choice">
+        <xsl:if test="sys:service">
+            <xsl:value-of select="concat(generate-id(),'&#x0a;')"/>
         </xsl:if>
     </xsl:template>
-    <xsl:template match="sys:node[@href]" mode="edge">
-        <xsl:param name="id"/>
-        <xsl:value-of select="concat($indent,'&quot;',$id,'&quot; -> &quot;',substring-after(@href,'#'),'&quot;&#x0a;')"/>
+    <xsl:template match="sys:node[@href]"/>
+    <xsl:template match="text()"/>
+
+    <!-- Add Connections -->
+    <xsl:template match="sys:repose" mode="connections">
+        <xsl:if test="following-sibling::sys:*">
+            <xsl:call-template name="add-connections">
+                <xsl:with-param name="sourceID" select="generate-id(sys:filters)"/>
+                <xsl:with-param name="next" select="following-sibling::sys:*"/>
+            </xsl:call-template>
+        </xsl:if>
     </xsl:template>
-    <xsl:template match="sys:node" mode="label">
-        <xsl:if test="not(@href)">
-            <xsl:value-of select="concat($indent,'&quot;',@id,'_flav&quot;')"/> [shape=rect, margin=0, label=&lt;
+
+    <xsl:template match="sys:node[@start = 'true']" mode="connections">
+        <xsl:call-template name="add-connections">
+            <xsl:with-param name="sourceID" select="'S0'"/>
+            <xsl:with-param name="next" select="sys:*[1]"/>
+        </xsl:call-template>
+        <xsl:apply-templates mode="connections"/>
+    </xsl:template>
+
+    <xsl:template name="add-connections">
+        <xsl:param name="sourceID"/>
+        <xsl:param name="next"/>
+        <xsl:choose>
+            <xsl:when test="(name($next) = 'node') and $next/@href">
+                <xsl:variable name="target" select="substring-after($next/@href,'#')"/>
+                <xsl:call-template name="add-connections">
+                    <xsl:with-param name="sourceID" select="$sourceID"/>
+                    <xsl:with-param name="next" select="//sys:node[@id=$target]/sys:*[1]"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="name($next) = 'service'">
+                <xsl:choose>
+                    <xsl:when test="name($next/..) = 'choice'">
+                        <xsl:call-template name="print-connection">
+                            <xsl:with-param name="sourceID" select="$sourceID"/>
+                            <xsl:with-param name="destID" select="concat('&quot;',generate-id($next/..),
+                                                                  '&quot;:',generate-id($next))"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="print-connection">
+                            <xsl:with-param name="sourceID" select="$sourceID"/>
+                            <xsl:with-param name="destID" select="generate-id($next)"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
+            <xsl:when test="name($next) = 'repose'">
+                <xsl:call-template name="print-connection">
+                    <xsl:with-param name="sourceID" select="$sourceID"/>
+                    <xsl:with-param name="destID" select="generate-id($next/sys:filters)"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="name($next) = 'choice'">
+                <xsl:for-each select="$next/sys:*">
+                    <xsl:call-template name="add-connections">
+                        <xsl:with-param name="sourceID" select="$sourceID"/>
+                        <xsl:with-param name="next" select="."/>
+                    </xsl:call-template>
+                </xsl:for-each>
+            </xsl:when>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="print-connection">
+        <xsl:param name="sourceID"/>
+        <xsl:param name="destID"/>
+
+        <xsl:value-of select="$sourceID"/>
+        <xsl:text> -> </xsl:text>
+        <xsl:value-of select="$destID"/>
+        <xsl:text>&#x0a;</xsl:text>
+    </xsl:template>
+
+    <xsl:template match="text()" mode="connections"/>
+
+    <!-- Add labels -->
+    <xsl:template match="sys:filters" mode="labels">
+        <xsl:value-of select="generate-id()"/> [shape=none, fillcolor=red,margin=0, label=&lt;
             &lt;TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"&gt;
-            <xsl:apply-templates mode="label"/>
+            <xsl:apply-templates mode="labels"/>
             &lt;/TABLE&gt;&gt;]
+    </xsl:template>
+    <xsl:template match="sys:filter" mode="labels">
+        &lt;TR&gt;&lt;TD BGCOLOR="lightgrey"&gt;<xsl:value-of select="@name"/>&lt;/TD&gt;&lt;/TR&gt;&#x0a;
+    </xsl:template>
+    <xsl:template match="sys:service" mode="labels">
+        <xsl:if test="not(name(..) = 'choice')">
+            <xsl:value-of select="generate-id()"/> [label="<xsl:call-template name="service-label"/>"; fillcolor=wheat;
+            ]
         </xsl:if>
     </xsl:template>
-    <xsl:template match="sys:repose" mode="label">
-        <xsl:apply-templates mode="label"/>
+    <xsl:template match="sys:choice" mode="labels">
+        <xsl:if test="sys:service">
+        <xsl:value-of select="generate-id()"/>
+        [shape=record, label="<xsl:apply-templates mode="labels-choice"/>"]
+        </xsl:if>
     </xsl:template>
-    <xsl:template match="sys:filter" mode="label">
-        &lt;TR&gt;&lt;TD&gt;<xsl:value-of select="@name"/>&lt;/TD&gt;&lt;/TR&gt;&#x0a;
+    <xsl:template match="sys:service" mode="labels-choice">
+        <xsl:text>&lt;</xsl:text>
+        <xsl:value-of select="generate-id()"/><xsl:text>&gt; </xsl:text>
+        <xsl:call-template name="service-label"/> <xsl:if
+        test="following-sibling::sys:service"><xsl:text> |</xsl:text></xsl:if>
     </xsl:template>
-    <xsl:template match="text()" mode="node"/>
-    <xsl:template match="text()" mode="edge"/>
-    <xsl:template match="text()" mode="label"/>
-    <xsl:template match="text()" mode="subgraph"/>
+    <xsl:template name="service-label">
+        <xsl:choose>
+            <xsl:when test="@id"><xsl:value-of select="@id"/></xsl:when>
+            <xsl:otherwise><xsl:value-of select="generate-id()"/></xsl:otherwise>
+        </xsl:choose>
+        <xsl:if test="@port">
+            <xsl:value-of select="concat(' ',@port)"/>
+        </xsl:if>
+        <xsl:if test="@path">
+            <xsl:value-of select="concat(' ',@path)"/>
+        </xsl:if>
+    </xsl:template>
+    <xsl:template match="text()" mode="labels"/>
+    <xsl:template match="text()" mode="labels-choice"/>
 </xsl:transform>

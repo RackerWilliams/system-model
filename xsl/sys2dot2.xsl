@@ -63,7 +63,11 @@ digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
         <xsl:param name="next"/>
         <xsl:choose>
             <xsl:when test="(name($next) = 'node') and $next/@href">
-                <xsl:value-of select="concat(generate-id(),'&#x0a;')"/>
+                <xsl:variable name="target" select="substring-after($next/@href,'#')"/>
+                <xsl:call-template name="add-connections">
+                    <xsl:with-param name="sourceID" select="$sourceID"/>
+                    <xsl:with-param name="next" select="///sys:node[@id=$target]/sys:*[1]"/>
+                </xsl:call-template>
             </xsl:when>
             <xsl:when test="name($next) = 'service'">
                 <xsl:choose>
@@ -96,9 +100,6 @@ digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
                     </xsl:call-template>
                 </xsl:for-each>
             </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="concat(generate-id(),'&#x0a;')"/>
-            </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
 

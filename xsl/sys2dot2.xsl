@@ -12,6 +12,7 @@
 digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
            node [fontname="Helvetica", shape=rect, style=filled,fillcolor="#EEEEEE"]
            <xsl:apply-templates />
+           <xsl:apply-templates mode="connections"/>
            <xsl:apply-templates mode="labels"/>
 }
     </xsl:template>
@@ -46,6 +47,54 @@ digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
     </xsl:template>
     <xsl:template match="sys:node[@href]"/>
     <xsl:template match="text()"/>
+
+    <!-- Add Connections -->
+    <xsl:template match="sys:repose" mode="connections">
+        <xsl:if test="following-sibling::sys:*">
+            <xsl:call-template name="add-connections">
+                <xsl:with-param name="sourceID" select="generate-id(sys:filters)"/>
+            </xsl:call-template>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="add-connections">
+        <xsl:param name="sourceID"/>
+        <xsl:choose>
+            <xsl:when test="following-sibling::sys:node[@href]">
+                <xsl:value-of select="concat(generate-id(),'&#x0a;')"/>
+            </xsl:when>
+            <xsl:when test="following-sibling::sys:service">
+                <xsl:call-template name="print-connection">
+                    <xsl:with-param name="sourceID" select="$sourceID"/>
+                    <xsl:with-param name="destID" select="generate-id(following-sibling::sys:service)"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="following-sibling::sys:repose">
+                <xsl:call-template name="print-connection">
+                    <xsl:with-param name="sourceID" select="$sourceID"/>
+                    <xsl:with-param name="destID" select="generate-id(following-sibling::sys:repose/sys:filters)"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="following-sibling::sys:choice">
+                <xsl:value-of select="concat(generate-id(),'&#x0a;')"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="concat(generate-id(),'&#x0a;')"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="print-connection">
+        <xsl:param name="sourceID"/>
+        <xsl:param name="destID"/>
+
+        <xsl:value-of select="$sourceID"/>
+        <xsl:text> -> </xsl:text>
+        <xsl:value-of select="$destID"/>
+        <xsl:text>&#x0a;</xsl:text>
+    </xsl:template>
+
+    <xsl:template match="text()" mode="connections"/>
 
     <!-- Add labels -->
     <xsl:template match="sys:filters" mode="labels">

@@ -66,7 +66,7 @@ digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
                 <xsl:variable name="target" select="substring-after($next/@href,'#')"/>
                 <xsl:call-template name="add-connections">
                     <xsl:with-param name="sourceID" select="$sourceID"/>
-                    <xsl:with-param name="next" select="///sys:node[@id=$target]/sys:*[1]"/>
+                    <xsl:with-param name="next" select="//sys:node[@id=$target]/sys:*[1]"/>
                 </xsl:call-template>
             </xsl:when>
             <xsl:when test="name($next) = 'service'">

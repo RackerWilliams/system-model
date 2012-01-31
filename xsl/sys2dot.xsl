@@ -29,7 +29,7 @@ digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
             <xsl:with-param name="id" select="@id"/>
         </xsl:apply-templates>
         <xsl:if test="@start='true'">
-            S0-><xsl:value-of select="concat($indent,'&quot;',@id,'&quot;&#x0a;')"/>
+             S0-><xsl:value-of select="concat('&quot;',@id,'&quot;&#x0a;')"/>
         </xsl:if>
     </xsl:template>
     <xsl:template match="sys:node[@href]" mode="edge">

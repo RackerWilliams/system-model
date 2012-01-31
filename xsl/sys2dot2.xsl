@@ -12,9 +12,11 @@
 digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
            node [fontname="Helvetica", shape=rect, style=filled,fillcolor="#EEEEEE"]
            <xsl:apply-templates />
+           <xsl:apply-templates mode="labels"/>
 }
     </xsl:template>
 
+    <!-- Setup Structure -->
     <xsl:template match="sys:node">
         subgraph cluster_<xsl:value-of select="generate-id()"/> {
            label="<xsl:choose>
@@ -44,4 +46,16 @@ digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
     </xsl:template>
     <xsl:template match="sys:node[@href]"/>
     <xsl:template match="text()"/>
+
+    <!-- Add labels -->
+    <xsl:template match="sys:filters" mode="labels">
+        <xsl:value-of select="generate-id()"/> [shape=rect, margin=0, label=&lt;
+            &lt;TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"&gt;
+            <xsl:apply-templates mode="labels"/>
+            &lt;/TABLE&gt;&gt;]
+    </xsl:template>
+    <xsl:template match="sys:filter" mode="labels">
+        &lt;TR&gt;&lt;TD&gt;<xsl:value-of select="@name"/>&lt;/TD&gt;&lt;/TR&gt;&#x0a;
+    </xsl:template>
+    <xsl:template match="text()" mode="labels"/>
 </xsl:transform>

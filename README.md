@@ -5,8 +5,8 @@
 #### System Model != Power Proxy Config
 
 While the system model contains configuration data, the system model
-is not a configuration item for any one perticular component.  It is
-simply a declaritive document that controls a repose deployment.
+is not a configuration item for any one particular component.  It is
+simply a declarative document that controls a repose deployment.
 
 Thus
 
@@ -30,7 +30,7 @@ may extract data from the model in order to configure themselves.
 #### The system model contains...
 
 ...an indication of how Repose is deployed, what filters are used
-where, and what the connections are between varius componets.  What
+where, and what the connections are between various components.  What
 are the allowed communications paths?  The latter is of particular
 importance especially as we develop the concept of security zones in
 repose.
@@ -50,21 +50,21 @@ it has to change as the product matures.
 When we have a choice we want to reduce the number of changes that
 will come to the model over time...and we want the model to be
 readable. Easy for a human to read is a better goal than easy for a
-computer to pase....end of the day the complexity in parsing the
-config can be coded once an is neglageble compared to how often humans
+computer to parse....end of the day the complexity in parsing the
+config can be coded once an is negligible compared to how often humans
 will interact with the file.
 
 #### Transformation is not a bad thing
 
 The power-proxy needs some info from the system model, the versioning
 component may need a collection of possible destinations, etc. Being
-able to translate the model to extract relevent data by each component
-is not a bad stradegy.
+able to translate the model to extract relevant data by each component
+is not a bad strategy.
 
 #### Should generate an image
 
 It should be possible to generate an overview image of a particular
-deployment from all of the data in the model.  There's a
+deployment directly from the  model.  There's a
 transformation from the proposed model to dot format to illustrate
 this point here...
 
@@ -74,9 +74,9 @@ xsl/sys2dot.xsl
 
 ### Other Notes
 
-Take the entity names in the model witha grain of salt...I'm not
-entirely marrid to them.  It's important that the concepts make it to
-the final file.
+Take the entity names in the model with a grain of salt...I'm not
+entirely married to them.  It's important that the concepts make it to
+the final file though.
 
 ### Repo Contents
 

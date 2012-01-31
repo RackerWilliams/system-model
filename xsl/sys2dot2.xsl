@@ -59,17 +59,34 @@ digraph System { rankdir=TB; fontname="Helvetica"; labelloc=b;
     </xsl:template>
     <xsl:template match="sys:service" mode="labels">
         <xsl:if test="not(name(..) = 'choice')">
-            <xsl:value-of select="generate-id()"/> [label="<xsl:choose>
-            <xsl:when test="@id"><xsl:value-of select="@id"/></xsl:when>
-            <xsl:otherwise><xsl:value-of select="generate-id()"/></xsl:otherwise>
-            </xsl:choose><xsl:if test="@port">
-            <xsl:value-of select="concat(' ',@port)"/>
-            </xsl:if>
-            <xsl:if test="@path">
-            <xsl:value-of select="concat(' ',@path)"/>
-            </xsl:if>"; fillcolor=wheat;
+            <xsl:value-of select="generate-id()"/> [label="<xsl:call-template name="service-label"/>"; fillcolor=wheat;
             ]
         </xsl:if>
     </xsl:template>
+    <xsl:template match="sys:choice" mode="labels">
+        <xsl:if test="sys:service">
+        <xsl:value-of select="generate-id()"/>
+        [shape=record, label="<xsl:apply-templates mode="labels-choice"/>"]
+        </xsl:if>
+    </xsl:template>
+    <xsl:template match="sys:service" mode="labels-choice">
+        <xsl:text>&lt;</xsl:text>
+        <xsl:value-of select="generate-id()"/><xsl:text>&gt; </xsl:text>
+        <xsl:call-template name="service-label"/> <xsl:if
+        test="following-sibling::sys:service"><xsl:text> |</xsl:text></xsl:if>
+    </xsl:template>
+    <xsl:template name="service-label">
+        <xsl:choose>
+            <xsl:when test="@id"><xsl:value-of select="@id"/></xsl:when>
+            <xsl:otherwise><xsl:value-of select="generate-id()"/></xsl:otherwise>
+        </xsl:choose>
+        <xsl:if test="@port">
+            <xsl:value-of select="concat(' ',@port)"/>
+        </xsl:if>
+        <xsl:if test="@path">
+            <xsl:value-of select="concat(' ',@path)"/>
+        </xsl:if>
+    </xsl:template>
     <xsl:template match="text()" mode="labels"/>
+    <xsl:template match="text()" mode="labels-choice"/>
 </xsl:transform>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
+    <node id="repose" start="true">
+        <repose port="8080">
+            <filters>
+                <filter name="client-authentication" />
+                <filter name="client-authorization" />
+                <filter name="dist-datastore" />
+                <filter name="rate-limiting" />
+            </filters>
+        </repose>
+        <node href="#nova"/>
+    </node>
+
+    <node id="nova">
+        <service id="nova" port="8081"/>
+    </node>
+
+    <cluster type="#repose">
+      <host alias="repose-n01" host="repose-n01.ord.internal.rackspace.corp" />
+      <host alias="repose-n02" host="repose-n02.ord.internal.rackspace.corp" />
+    </cluster>
+
+    <cluster type="#nova">
+      <host alias="nova-n01" host="nova-n01.ord.internal.rackspace.corp" />
+      <host alias="nova-n02" host="nova-n02.ord.internal.rackspace.corp" />
+    </cluster>
+</system>

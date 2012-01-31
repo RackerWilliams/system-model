@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
+    <node id="repose-actional" start="true">
+        <repose port="8080">
+            <filters>
+                <filter name="client-authentication" />
+                <filter name="client-authorization" />
+                <filter name="dist-datastore" />
+                <filter name="rate-limiting" />
+            </filters>
+        </repose>
+        <service id="actional" path="/aii"/>
+    </node>
+
+   <cluster type="#repose-actional">
+      <host alias="repose-actional-n01" host="repose-actional-n01.ord.internal.rackspace.corp" />
+      <host alias="repose-actional-n02" host="repose-actional-n02.ord.internal.rackspace.corp" />
+   </cluster>
+</system>

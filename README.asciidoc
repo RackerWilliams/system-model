@@ -1,7 +1,36 @@
-System Model Proposal
-=====================
+== System Model Proposal
 
-== Repo Contents
+=== Major Points
+
+==== System Model != Power Proxy Config
+
+While the system model contains configuration data, the system model
+is not a configuration item for any one perticular component.  It is
+simply a declaritive document that states a repose deployment.
+
+Thus
+
+[source,xml]
+----
+<system xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
+   ....
+</system>
+----
+
+Instead of
+
+[source,xml]
+----
+<power-proxy xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
+   ....
+</power-proxy>
+----
+
+Multiple components (like the power proxy and the versioning filter)
+may extract data from the model in order to configure themselves.
+
+
+=== Repo Contents
 
 Sample models are in:
 

@@ -1,6 +1,26 @@
 ## Repose System Model Proposal
 
-### Major Points
+## Major Benfits over Service Domain Model
+
+1. All possible connections stored in a single XML document.  The service model method stores end points
+   in the configuration of individual routing componets.  That means in order to get a complete view of
+   how things are connected -- you have to parse multiple files.  With *this* model there's a single document
+   where you can see/edit all connections.
+
+2. Services are in *this* model are addressed via full URIs.  The alternative Service domain model only sees
+   services as a host and a port.  This shuts down a lot of possibilites for repose.
+
+3. There's an indication of what connection are exposed to outside and which should remain internal (via the start attribute)
+   this is important when setting up security zones.
+   
+4. Node boundries are explicitly expressed -- that means you can tell when a repose service is not accessible
+   from the outside. And you can explicitly tell how things scale horizontally.
+
+5. Shields Repose specific implementation details -- you don't have to know that you have to use one dispatcher for
+   a local call and aother for a remote one -- it turns out that the dispatcher may change from one version of the
+   product to another.
+
+### Other Important Points
 
 #### System Model != Power Proxy Config
 
@@ -54,13 +74,6 @@ computer to parse....end of the day the complexity in parsing the
 config can be coded once an is negligible compared to how often humans
 will interact with the file.
 
-#### Transformation is not a bad thing
-
-The power-proxy needs some info from the system model, the versioning
-component may need a collection of possible destinations, etc. Being
-able to translate the model to extract relevant data by each component
-is not a bad strategy.
-
 #### Should generate an image
 
 It should be possible to generate an overview image of a particular
@@ -87,7 +100,9 @@ samples/*.xml
 ````
 
 PDFs are available so you can get an idea of how the connections
-work.  The original samples supplied in the previous proposal are in
+work.
+
+Examples of the alternate model are in
 
 ````
 samples/power-proxy/orig/*.xml
